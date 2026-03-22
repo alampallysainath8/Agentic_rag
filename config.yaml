@@ -1,0 +1,91 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║            Agentic RAG – Central Configuration                  ║
+# ║  Switch providers here — NO code changes needed (plug-and-play) ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# ── Embedding provider ────────────────────────────────────────────
+embedding:
+  provider: "huggingface"           # "huggingface" | "openai"
+  huggingface_model: "sentence-transformers/all-MiniLM-L6-v2"
+  openai_model: "text-embedding-3-small"
+  openai_api_key_env: "OPENAI_API_KEY"
+  batch_size: 64
+
+# ── Generation LLM ───────────────────────────────────────────────
+llm:
+  provider: "groq"                  # "groq" | "vertexai"
+  groq_model: "llama-3.3-70b-versatile"
+  small_model: "llama-3.1-8b-instant"   # used for decision & routing nodes
+  groq_api_key_env: "GROQ_API_KEY"
+  vertex_model: "gemini-1.5-flash"
+  vertex_project_env: "GOOGLE_CLOUD_PROJECT"
+  vertex_location: "us-central1"
+  temperature: 0.0
+  max_tokens: 2048
+
+# ── Vision LLM (image enrichment during indexing) ────────────────
+vision_llm:
+  provider: "groq"
+  groq_model: "meta-llama/llama-4-scout-17b-16e-instruct"
+
+# ── Vector store ──────────────────────────────────────────────────
+vectorstore:
+  provider: "chroma"
+  chroma:
+    persist_directory: "./chroma_data"
+    collection_name: "agentic_rag"
+    distance_function: "cosine"
+
+# ── Indexing pipeline ─────────────────────────────────────────────
+indexing:
+  strategy: "markdown_recursive"    # "markdown_recursive" | "recursive_only"
+  embed_images: true
+  markdown_recursive:
+    max_section_size: 1500
+    recursive_chunk_size: 500
+    recursive_overlap: 50
+  recursive_only:
+    chunk_size: 500
+    chunk_overlap: 50
+
+# ── Retrieval ─────────────────────────────────────────────────────
+retrieval:
+  top_k: 5
+  candidate_k: 20           # initial candidates before reranking
+  bm25_top_k: 10
+  bm25_weight: 0.4          # weight for BM25 in EnsembleRetriever
+  dense_weight: 0.6          # weight for dense (vector) in EnsembleRetriever
+  hybrid_rrf_k: 60
+  use_cohere_rerank: true    # enable Cohere reranker in hybrid retrieval
+  reranking_enabled: true
+
+# ── SQL / SQLite ─────────────────────────────────────────────────
+sql:
+  enabled: true
+  sqlite_path: "experiments/sqlite_agent/hr.db"
+  max_attempts: 2
+  # HR schema is embedded in src/retrieval/sql_agent.py → SQLITE_SCHEMA
+
+
+# ── Reflection / grading ─────────────────────────────────────────
+reflection:
+  max_retries: 2
+
+# ── Semantic Cache ────────────────────────────────────────────────
+cache:
+  enabled: true
+  distance_threshold: 0.25        # cosine distance below this → cache hit
+  persist_directory: "./cache_data"
+
+# ── Web Search ────────────────────────────────────────────────────
+web_search:
+  tavily_api_key_env: "TAVILY_API_KEY"
+  max_results: 5
+
+# ── Document Deduplication ────────────────────────────────────────
+deduplication:
+  hash_store_path: "./indexing/file_hashes.json"
+
+# ── Logging ───────────────────────────────────────────────────────
+logging:
+  level: "INFO"

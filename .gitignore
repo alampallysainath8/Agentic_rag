@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+chroma_data/
+.env
+*.egg-info/
+dist/
+build/
+.python-version
+__pycache__/
+logs
+cache_data
+experiments
