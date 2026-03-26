@@ -1,22 +1,4 @@
-"""
-Generator Agent — produces a final answer from retrieved context.
 
-Supports:
-  - Chat-history-aware generation (injects prior turns for continuity).
-  - No-retrieval path (direct LLM answer with history, no documents).
-  - Context-grounded path (uses retrieved docs + history).
-  - Optional query rewriting before generation.
-
-Usage
------
-    gen = GeneratorAgent(llm)
-    # With context (single_retrieval / multi_hop)
-    answer = gen.generate(context="...", question="What is X?",
-                          chat_history=[{"role":"user","content":"prev q"},
-                                         {"role":"assistant","content":"prev a"}])
-    # Without context (no_retrieval)
-    answer = gen.generate_no_retrieval(question="Hi!", chat_history=[...])
-"""
 from __future__ import annotations
 
 import logging

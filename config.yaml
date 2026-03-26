@@ -89,3 +89,28 @@ deduplication:
 # ── Logging ───────────────────────────────────────────────────────
 logging:
   level: "INFO"
+# ── RAG Evaluation (DeepEval) ─────────────────────────────────────────────────
+evaluation:
+  # Judge model used by DeepEval to score responses.
+  # Must be an OpenAI model name (uses OPENAI_API_KEY) or a supported
+  # DeepEval model object identifier.
+  # Override at runtime with the EVAL_MODEL environment variable.
+  model: "grok-3"
+
+  # Score below which a metric is considered failing.
+  threshold: 0.5
+
+  # Path where evaluation records are persisted (JSON array).
+  history_path: "./logs/eval_history.json"
+
+  # Metrics to run (comment out any you do not need):
+  #   faithfulness      — grounding / hallucination check (needs context)
+  #   answer_relevancy  — is the answer relevant to the query?
+  #   context_relevancy — are retrieved chunks relevant to the query?
+  #   context_recall    — did retrieval cover the required info?
+  #                       (requires expected_output; skipped when absent)
+  metrics:
+    - faithfulness
+    - answer_relevancy
+    - context_relevancy
+    - context_recall

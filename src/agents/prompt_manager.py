@@ -1,12 +1,4 @@
-"""
-Prompt Manager — single source of truth for all LLM prompt templates.
 
-All agent modules import their prompts from here instead of defining
-them locally.  Use Python str.format(**kwargs) to fill in placeholders.
-
-Import pattern:
-    from src.agents.prompt_manager import DECISION_SYSTEM_PROMPT
-"""
 from __future__ import annotations
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,25 +1,4 @@
-"""
-Domain Classifier Agent — identifies which knowledge domain a query belongs to.
 
-Runs immediately after query expansion, before the Decision Agent.
-The detected domain is threaded through the rest of the pipeline so that the
-Decision Agent and Router Agent can apply domain-aware constraints.
-
-Domains
--------
-hr_domain         Employees, salaries, leaves, attendance, performance,
-                  training — all backed by the SQLite HR database.
-research_domain   AI, RAG, LLMs, embeddings, research papers — backed by
-                  the vector document store.
-general           Greetings, chit-chat, generic world knowledge.
-
-Usage
------
-    agent = DomainAgent.from_config()
-    result = agent.classify("What is the average salary in Engineering?")
-    print(result.domain)   # "hr_domain"
-    print(result.reason)
-"""
 from __future__ import annotations
 
 import os

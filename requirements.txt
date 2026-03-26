@@ -40,3 +40,8 @@ requests>=2.31.0
 # Config / utils
 pyyaml>=6.0
 python-dotenv>=1.0.0
+
+# RAG Evaluation
+deepeval>=0.21.0
+pandas>=2.0.0
+openpyxl>=3.1.0

@@ -1,24 +1,4 @@
-"""
-Decision Agent — classifies the incoming query into a retrieval strategy.
 
-CRITICAL MENTAL MODEL:
-  multi_hop = multiple REASONING STEPS   (NOT multiple sources)
-  hybrid    = multiple SOURCES combined  (that is the Router's job)
-
-Strategies
-----------
-no_retrieval       Greetings, general knowledge, conversational follow-ups.
-single_retrieval   One focused lookup — single query, single result.
-multi_hop          Multiple reasoning steps: chaining, analysis, comparison.
-                   Can be entirely within vector OR entirely within SQL.
-web_search         Requires current/external info not in the system.
-
-Usage
------
-    agent = DecisionAgent.from_config()
-    decision = agent.decide("Compare RAG strategies in the papers", domain="research_domain")
-    print(decision.strategy)   # "multi_hop"
-"""
 from __future__ import annotations
 
 import os

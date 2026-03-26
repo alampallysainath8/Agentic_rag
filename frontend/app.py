@@ -39,7 +39,7 @@ st.set_page_config(
     page_title="Agentic RAG",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="auto",
 )
 
 # ── Minimal CSS — ChatGPT-like look ───────────────────────────────────────────
@@ -121,6 +121,10 @@ with st.sidebar:
     except Exception:
         st.error("Backend offline — run: `uvicorn api:app --reload`")
 
+    st.page_link("pages/📊_Evaluation.py", label="📊 Evaluation", icon="📊")
+
+    st.divider()
+
     st.divider()
 
     top_k = st.slider("Docs retrieved (top-k)", 1, 15, 5)
@@ -160,8 +164,7 @@ if not st.session_state.messages:
         unsafe_allow_html=True,
     )
 
-
-# ── Message history ────────────────────────────────────────────────────────────
+ # ── Message history ────────────────────────────────────────────────────────────
 for msg in st.session_state.messages:
     role = msg["role"]
     content = msg["content"]
@@ -184,7 +187,6 @@ for msg in st.session_state.messages:
                 parts.append("cache hit")
             if meta.get("expanded_query") and meta["expanded_query"] != meta.get("query", ""):
                 parts.append(f'expanded: *{meta["expanded_query"][:80]}*')
-
             if parts:
                 st.markdown(
                     f'<div class="msg-meta">{" &nbsp;·&nbsp; ".join(parts)}</div>',

@@ -1,15 +1,4 @@
-"""
-Router Agent — picks the best retrieval source for a query.
 
-Sources
--------
-sql     → structured HR database (hr_domain ONLY)
-hybrid  → BM25 + dense vector search over documents (safe for any domain)
-
-web_search is NOT a source here — it is handled upstream by the decision agent.
-All routing is done by the LLM with structured output.
-Fallback: any domain → hybrid (safe default).
-"""
 from __future__ import annotations
 
 import os

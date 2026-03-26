@@ -1,26 +1,4 @@
-"""
-Reflection Agent — validates a generated answer for hallucinations and completeness.
 
-Uses Pydantic structured output for reliable result parsing.
-Returns a structured verdict so the LangGraph grading node can decide
-whether to accept the answer or trigger a corrective retry loop.
-
-Dimensions evaluated
---------------------
-grounded  — Every claim in the answer is supported by the context.
-complete  — The answer fully addresses the question.
-coherent  — The answer is well-structured and free of contradictions.
-
-self-reflection pattern: if grounded AND complete AND coherent → PASS else → FAIL
-FAIL triggers corrective RAG: rewrite query → re-retrieve → regenerate.
-
-Usage
------
-    reflector = ReflectionAgent(llm)
-    result = reflector.reflect(question, context, answer)
-    if result.verdict == "FAIL":
-        # trigger corrective rewrite + retrieval
-"""
 from __future__ import annotations
 
 import json

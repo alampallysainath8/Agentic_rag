@@ -1,22 +1,4 @@
-"""
-Grader Agent — scores answer quality and rewrites the query when needed.
 
-Uses Pydantic structured output for reliable JSON parsing.
-Triggers the corrective RAG loop in LangGraph when grade verdict == "BAD".
-
-Workflow
---------
-1. Grade the answer (1-5 score, GOOD/BAD verdict).
-2. If BAD: rewrite the query to retrieve better evidence.
-3. LangGraph re-enters the single_retrieval node with the new query.
-
-Usage
------
-    grader = GraderAgent(llm)   # llm is a LangChain ChatModel
-    result = grader.grade(question, answer)
-    if result.verdict == "BAD":
-        new_query = grader.rewrite(question, result.rationale)
-"""
 from __future__ import annotations
 
 import json
