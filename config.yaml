@@ -1,9 +1,4 @@
-# ╔══════════════════════════════════════════════════════════════════╗
-# ║            Agentic RAG – Central Configuration                  ║
-# ║  Switch providers here — NO code changes needed (plug-and-play) ║
-# ╚══════════════════════════════════════════════════════════════════╝
 
-# ── Embedding provider ────────────────────────────────────────────
 embedding:
   provider: "huggingface"           # "huggingface" | "openai"
   huggingface_model: "sentence-transformers/all-MiniLM-L6-v2"
@@ -11,7 +6,6 @@ embedding:
   openai_api_key_env: "OPENAI_API_KEY"
   batch_size: 64
 
-# ── Generation LLM ───────────────────────────────────────────────
 llm:
   provider: "groq"                  # "groq" | "vertexai"
   groq_model: "llama-3.3-70b-versatile"
@@ -23,12 +17,10 @@ llm:
   temperature: 0.0
   max_tokens: 2048
 
-# ── Vision LLM (image enrichment during indexing) ────────────────
 vision_llm:
   provider: "groq"
   groq_model: "meta-llama/llama-4-scout-17b-16e-instruct"
 
-# ── Vector store ──────────────────────────────────────────────────
 vectorstore:
   provider: "chroma"
   chroma:
@@ -36,7 +28,6 @@ vectorstore:
     collection_name: "agentic_rag"
     distance_function: "cosine"
 
-# ── Indexing pipeline ─────────────────────────────────────────────
 indexing:
   strategy: "markdown_recursive"    # "markdown_recursive" | "recursive_only"
   embed_images: true
@@ -48,7 +39,6 @@ indexing:
     chunk_size: 500
     chunk_overlap: 50
 
-# ── Retrieval ─────────────────────────────────────────────────────
 retrieval:
   top_k: 5
   candidate_k: 20           # initial candidates before reranking
@@ -64,14 +54,10 @@ sql:
   enabled: true
   sqlite_path: "experiments/sqlite_agent/hr.db"
   max_attempts: 2
-  # HR schema is embedded in src/retrieval/sql_agent.py → SQLITE_SCHEMA
 
-
-# ── Reflection / grading ─────────────────────────────────────────
 reflection:
   max_retries: 2
 
-# ── Semantic Cache ────────────────────────────────────────────────
 cache:
   enabled: true
   distance_threshold: 0.25        # cosine distance below this → cache hit
@@ -91,11 +77,7 @@ logging:
   level: "INFO"
 # ── RAG Evaluation (DeepEval) ─────────────────────────────────────────────────
 evaluation:
-  # Judge model used by DeepEval to score responses.
-  # Must be an OpenAI model name (uses OPENAI_API_KEY) or a supported
-  # DeepEval model object identifier.
-  # Override at runtime with the EVAL_MODEL environment variable.
-  model: "grok-3"
+  model: "gpt-4o-mini"
 
   # Score below which a metric is considered failing.
   threshold: 0.5
@@ -103,12 +85,6 @@ evaluation:
   # Path where evaluation records are persisted (JSON array).
   history_path: "./logs/eval_history.json"
 
-  # Metrics to run (comment out any you do not need):
-  #   faithfulness      — grounding / hallucination check (needs context)
-  #   answer_relevancy  — is the answer relevant to the query?
-  #   context_relevancy — are retrieved chunks relevant to the query?
-  #   context_recall    — did retrieval cover the required info?
-  #                       (requires expected_output; skipped when absent)
   metrics:
     - faithfulness
     - answer_relevancy

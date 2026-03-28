@@ -23,6 +23,7 @@ Switch LLM, embeddings, or chunking strategy entirely in `config.yaml` — no co
 | PDF Parsing | Docling |
 | Backend API | FastAPI + Uvicorn |
 | Frontend UI | Streamlit |
+| Evaluation | DeepEval (Faithfulness, Answer Relevancy, Context Relevancy, Context Recall) |
 
 ---
 
@@ -37,7 +38,9 @@ Agentic_rag/
 │
 ├── frontend/
 │   ├── app.py               Streamlit ChatGPT-like UI (no business logic)
-│   └── requirements.txt     Frontend-only deps (streamlit, requests)
+│   ├── requirements.txt     Frontend-only deps (streamlit, requests)
+│   └── pages/
+│       └── 📊_Evaluation.py   3-tab eval UI (Manual / Excel Batch / History)
 │
 ├── src/
 │   ├── config.py            YAML → Config dataclass
@@ -73,6 +76,12 @@ Agentic_rag/
 │   │
 │   ├── cache/
 │   │   └── semantic_cache.py  FAISS semantic cache (lookup + store)
+│   │
+│   ├── evaluation/
+│   │   ├── evaluator.py       RAGEvaluatorService — single Q/A evaluation
+│   │   ├── rag_metrics.py     4-metric suite (DeepEval, with context truncation)
+│   │   ├── batch_evaluator.py Excel / JSON batch evaluation + report export
+│   │   └── history.py         Thread-safe JSON store → logs/eval_history.json
 │   │
 │   └── utils/
 │       ├── logger.py          JSON structured logger + file handler
@@ -194,6 +203,64 @@ O --> Z
 
 ---
 
+## Evaluation Layer
+
+An offline / online evaluation layer powered by **DeepEval** sits alongside the RAG pipeline.
+
+### Metrics
+
+| Metric | Requires `expected_output`? | Description |
+|---|---|---|
+| **Faithfulness** | No | Is the answer grounded in the retrieved context? |
+| **Answer Relevancy** | No | Is the answer on-topic to the query? |
+| **Context Relevancy** | No | Are the retrieved chunks relevant to the query? |
+| **Context Recall** | Yes | Did retrieval cover all information needed to answer? |
+
+### Modes
+
+| Mode | How to use |
+|---|---|
+| **Single eval** | `POST /evaluate` API — paste query, answer, context chunks |
+| **Batch eval** | `POST /evaluate/batch` API — up to 30 rows per call |
+| **Excel batch** | `BatchEvaluator().run_from_excel("dataset.xlsx")` — reads `input`, `expected_output`, `retrieval_context` columns; writes results workbook |
+| **History** | `GET /evaluations` returns last N records from `logs/eval_history.json` |
+
+### Evaluation Flow
+
+```mermaid
+flowchart LR
+    A([Query + Answer + Context]) --> B[RAGEvaluatorService]
+    B --> C[RAGMetrics]
+    C --> D{expected_output?}
+    D -->|yes| E["Faithfulness<br/>Answer Relevancy<br/>Context Relevancy<br/>Context Recall"]
+    D -->|no|  F["Faithfulness<br/>Answer Relevancy<br/>Context Relevancy"]
+    E --> G[EvaluationResult]
+    F --> G
+    G --> H[history.py append]
+    H --> I[(logs/eval_history.json)]
+```
+
+### Streamlit Evaluation UI
+
+The evaluation page (`frontend/pages/📊_Evaluation.py`) exposes three tabs:
+
+- **Manual** — enter a Q/A pair, run all metrics, view scores + LLM reasoning
+- **Excel Batch** — upload `.xlsx`, evaluate every row, download results workbook
+- **History** — browse, filter, and inspect past evaluation records
+
+**Evaluation History — aggregate scores and per-query results**
+
+![Evaluation History Board](Rag_evaluation_board.png)
+
+**Metric score cards**
+
+![Evaluation Metrics](Evaluation_matrix.png)
+
+> **Note:** DeepEval uses an OpenAI-compatible judge model.  
+> Set `OPENAI_API_KEY` (or `EVAL_MODEL` env var to override the model, default `gpt-4o-mini`).
+
+---
+
 ## Quick Start
 
 ```powershell
@@ -208,6 +275,8 @@ pip install -r requirements.txt
 #    Required : GROQ_API_KEY
 #    Optional : COHERE_API_KEY  (reranking)
 #               TAVILY_API_KEY  (web search)
+#               OPENAI_API_KEY  (DeepEval judge model)
+#               EVAL_MODEL      (override judge model, default: gpt-4o-mini)
 
 # 4. Start the FastAPI backend
 uvicorn api:app --reload --port 8000
@@ -226,6 +295,10 @@ streamlit run frontend/app.py
 | `POST` | `/query` | Submit query, get answer + citations |
 | `POST` | `/index` | Upload and index a PDF |
 | `GET` | `/graph/viz` | Mermaid diagram of the LangGraph workflow |
+| `POST` | `/evaluate` | Evaluate a single Q/A pair (4 DeepEval metrics) |
+| `POST` | `/evaluate/batch` | Batch-evaluate up to 30 Q/A pairs |
+| `GET` | `/evaluations` | Retrieve stored evaluation history |
+| `DELETE` | `/evaluations` | Clear all stored evaluation records |
 
 **Query response includes:**
 - `answer` — grounded text with inline `[1]` `[2]` citation markers
@@ -249,3 +322,13 @@ streamlit run frontend/app.py
 | `cache.enabled` | `true` | disable for development |
 | `cache.distance_threshold` | `0.25` | lower = stricter cache matching |
 | `indexing.embed_images` | `true` | requires Groq vision model |
+
+---
+
+## Evaluation Environment Variables
+
+| Variable | Default | Notes |
+|---|---|---|
+| `OPENAI_API_KEY` | — | Required for DeepEval judge model |
+| `EVAL_MODEL` | `gpt-4o-mini` | Any OpenAI-compatible model name |
+| `DEEPEVAL_TELEMETRY_OPT_OUT` | `YES` | Set automatically; disables telemetry |
