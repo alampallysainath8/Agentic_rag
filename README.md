@@ -250,11 +250,11 @@ The evaluation page (`frontend/pages/📊_Evaluation.py`) exposes three tabs:
 
 **Evaluation History — aggregate scores and per-query results**
 
-![Evaluation History Board](Rag_evaluation_board.png)
+![Evaluation History Board](screenshots/Rag_evaluation_board.png)
 
 **Metric score cards**
 
-![Evaluation Metrics](Evaluation_matrix.png)
+![Evaluation Metrics](screenshots/Evaluation_matrix.png)
 
 > **Note:** DeepEval uses an OpenAI-compatible judge model.  
 > Set `OPENAI_API_KEY` (or `EVAL_MODEL` env var to override the model, default `gpt-4o-mini`).
